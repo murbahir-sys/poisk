@@ -23,7 +23,7 @@ input:focus,select:focus{outline:0;border-color:#0fa3a3;border-color:var(--acc,#
 .u{font-size:12px;color:#5b6f84;color:var(--mut,#5b6f84)}.sumt{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:6px 0}
 .res{background:#e6f6f3;background:var(--ok,#e6f6f3);border:1px solid var(--line,#d5e0ea);border-radius:10px;padding:12px;margin-top:12px;font-family:Consolas,"Courier New",monospace;font-size:13.5px;white-space:pre-wrap;word-break:break-word}
 .big{display:flex;align-items:center;gap:14px;margin-top:12px}.big b{font-size:30px;color:#0a3a5e;color:var(--pri,#0a3a5e)}.bar{flex:1;height:10px;background:#d5e0ea;background:var(--line,#d5e0ea);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#0b7a86,#19c2c2);transition:width .5s}
-.interp{font-size:13.5px;margin-top:8px;color:#12263a;color:var(--ink,#12263a)}.err{color:#d64545;color:var(--bad,#d64545);font-size:13px;margin-top:10px}
+.interp{font-size:13.5px;margin-top:8px;color:#12263a;color:var(--ink,#12263a)}.warn{font-size:13px;margin-top:8px;padding:8px 10px;border-radius:8px;border-left:3px solid #d68a00;background:rgba(214,138,0,.12)}.err{color:#d64545;color:var(--bad,#d64545);font-size:13px;margin-top:10px}
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.btns button{display:flex;align-items:center;gap:6px;padding:9px 14px;border:0;border-radius:9px;background:#0a3a5e;background:var(--pri,#0a3a5e);color:#fff;color:var(--card,#fff);font-size:14px;cursor:pointer;transition:opacity .2s}.btns button:hover{opacity:.85}.btns svg{width:16px;height:16px}
 footer{text-align:center;font-size:12px;color:#5b6f84;color:var(--mut,#5b6f84);padding:10px 0 24px}
 @media(max-width:720px){.tree{grid-template-columns:1fr}.f{grid-template-columns:1fr 110px 44px}.sumt{grid-template-columns:repeat(2,1fr)}header h1{font-size:17px}}
@@ -48,7 +48,7 @@ input,select,textarea{font-size:16px}html{-webkit-text-size-adjust:100%}body{-we
 <main><div class="tree">
 <div class="card"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>Схема 1. Перехват (сближение) при Vк&gt;Vц или Gц≤Qкр</h2>
 <div class="grp">По данным внешних источников</div>
-<button class="node" data-m="lp"><span class="dot"></span>Pпер = Lп/L</button>
+<button class="node" data-m="lp"><span class="dot"></span>Pпер = Lп·Pк/L</button>
 <button class="node" data-m="nav"><span class="dot"></span>Pпер = Pрб·Pd, при наведении</button>
 <button class="node" data-m="kurs"><span class="dot"></span>Pпер = Pрб·Pd, поиск на вероятном курсе</button>
 <div class="grp">По данным своих средств наблюдения</div>
@@ -70,68 +70,75 @@ Vc:['Vц','скорость цели','уз',15,0,null,'Скорость цел�
 tz:['tз','время запаздывания','ч',1,0,null,'Время от обнаружения цели до начала действий поисковых сил: за него цель смещается на Vц·tз.'],
 Gc:['Gц','курсовой угол цели','°',60,0,180,'Угол между курсом цели и направлением на поисковые силы, от 0 до 180°.'],
 tdop:['tдоп','допустимое время','ч',3,0,null,'Время, которым располагают поисковые силы для выхода на рубеж.'],
-Lp:['Lп','перекрываемая часть рубежа','миль',40,0,null,'Длина части рубежа перехвата, которую перекрывают поисковые силы.'],
-L:['L','длина рубежа','миль',100,1e-9,null,'Полная длина рубежа перехвата (или дозора).'],
+Rk:['Rк','радиус предельной окружности встреч','миль',20,0,null,'Радиус предельной окружности встреч: насколько далеко корабль из упреждающей позиции успевает выйти навстречу цели.'],
+Rp:['Rп','удаление рубежа перехвата от берега','миль',15,0,null,'Расстояние от берега до рубежа, на котором перехватывается цель.'],
+Rb:['Rб','мин. удаление позиции корабля от берега','миль',5,0,null,'Минимальное расстояние от берега до упреждающей позиции корабля.'],
+L:['L','длина рубежа','миль',100,1e-9,null,'Полная длина рубежа перехвата (или дозора). В режиме Lп·Pк/L — длина направления службы, указанная в приказе на охрану государственной границы.'],
 D:['D','радиус круга','миль',10,0,null,'Радиус круга, в котором свои средства обнаруживают цель (например, дальность обнаружения).'],
-E:['E','срединное отклонение','миль',8,1e-9,null,'Срединное (вероятное) отклонение места цели: в полосу ±E попадает половина случаев. σ ≈ E/0,6745.'],
-Pk:['Pk','вероятность обнаружения при контакте','—',0.9,0,1,'Вероятность обнаружить цель, если она оказалась в зоне действия средств. От 0 до 1.'],
+sig:['σc *','СКО места цели (обязательно)','миль',11.8606,1e-9,null,'Среднее квадратическое отклонение места цели — обязательное поле, расчёт ведётся от него. Срединное отклонение вычисляется автоматически: E = 0,6745·σc (= ρ√2·σc, ρ = 0,476936).'],
+Pk:['Pк','вероятность обнаружения при контакте','—',0.9,0,1,'Вероятность обнаружить цель, если она оказалась в зоне действия средств. От 0 до 1.'],
 S:['S','площадь района поиска','миль²',2000,1e-9,null,'Площадь ограниченного района, в котором находится цель.']};
-var M={lp:['Lp','L'],nav:['Psv','Rc','Tp','Vr','D','E'],kurs:['Rc','Vc','tz','Gc','Vr','tdop','D','E'],pd:['D','E'],blk:['L','Pk'],zak:['S','Pk'],nez:['S','Pk']};
-var T={lp:'Перехват: Pпер = Lп/L',nav:'Перехват при наведении: Pпер = Pрб·Pd',kurs:'Перехват при поиске на вероятном курсе: Pпер = Pрб·Pd',pd:'Pd — попадание цели в круг радиусом D',blk:'Блокирование в дозоре',zak:'Закономерное маневрирование',nez:'Незакономерное маневрирование'};
-var A={lp:'Применяется, когда данные о цели получены от внешних источников и рубеж перехвата перекрыт поисковыми силами частично. Результат — доля рубежа, которую контролируют силы, т. е. вероятность того, что цель пройдёт через перекрытый участок.',
+var M={lp:['Rk','Rp','Rb','D','L','Pk'],nav:['Psv','Rc','Tp','Vr','D','sig'],kurs:['Rc','Vc','tz','Gc','Vr','tdop','D','sig'],pd:['D','sig'],blk:['L','Pk'],zak:['S','Pk'],nez:['S','Pk']};
+var T={lp:'Перехват: Pпер = Lп·Pк/L, Lп = 2·(D + √(Rк² − (Rп − Rб)²))',nav:'Перехват при наведении: Pпер = Pрб·Pd',kurs:'Перехват при поиске на вероятном курсе: Pпер = Pрб·Pd',pd:'Pd — попадание цели в круг радиусом D',blk:'Блокирование в дозоре',zak:'Закономерное маневрирование',nez:'Незакономерное маневрирование'};
+var A={lp:'Применяется, когда корабль перехватывает цель из упреждающей позиции по данным средств берегового наблюдения. Lп — длина направления службы, позволяющая перехватить цель; она не вводится, а рассчитывается: Lп = 2·(D + √(Rк² − (Rп − Rб)²)). L — длина направления службы по приказу на охрану государственной границы. Результат Pпер = Lп·Pк/L (не больше 1).',
 nav:'Применяется, когда поисковые силы наводятся на цель по внешним данным. Pрб — вероятность выйти на рубеж перехвата, Pd — вероятность того, что цель окажется в круге обнаружения. Итог Pпер — вероятность перехвата.',
 kurs:'Применяется, когда поисковые силы ищут цель на её вероятном курсе. tр — время выхода на рубеж с учётом смещения цели за время запаздывания; Pрб тем больше, чем больше tдоп по сравнению с tр. Итог Pпер = Pрб·Pd.',
 pd:'Применяется по данным своих средств наблюдения: вероятность того, что случайное место цели на рубеже перехвата попадёт в круг радиусом D, если центр рассеивания совпадает с центром круга.',
 blk:'Применяется при блокировании в дозоре: силы перекрывают рубеж длиной L участками lуч. Результат — вероятность обнаружения цели, пересекающей рубеж.',
 zak:'Применяется при закономерном (систематическом) поиске в ограниченном районе: обследованные площади Si не перекрываются, вероятность растёт пропорционально обследованной доле района.',
-nez:'Применяется при незакономерном (случайном) маневрировании: обследованные площади могут перекрываться, поэтому вероятность растёт медленнее и не превышает Pk.'};
+nez:'Применяется при незакономерном (случайном) маневрировании: обследованные площади могут перекрываться, поэтому вероятность растёт медленнее и не превышает Pк.'};
 var rho=0.476936,mode='nav',rep='';
 function f(x){return(+x).toLocaleString('ru-RU',{maximumFractionDigits:4})}
+function pl(n,a,b,c){if(Math.floor(n)!==n)return b;var x=Math.abs(n)%100,y=x%10;return x>10&&x<20?c:y==1?a:y>1&&y<5?b:c}
+function mi(x){return f(x)+' '+pl(+f(x).replace(/\s/g,'').replace(',','.'),'миля','мили','миль')}
 function $(i){return document.getElementById(i)}
 function erf(x){var s=x<0?-1:1;x=Math.abs(x);var t=1/(1+0.5*x),y=1-t*Math.exp(-x*x-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+t*(-0.82215223+t*0.17087277)))))))));return s*y}
 var IC={calc:'<path d="M5 12h14M12 5v14"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h8"/>',save:'<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>'};
 function ic(n){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+IC[n]+'</svg>'}
-function fld(k,v,i){var a=F[k];return '<div class="f"><div class="n"><button class="q" data-t="'+i+'">?</button><span><b>'+a[0]+'</b> — '+a[1]+'</span></div><input id="'+k+'" type="number" step="any" inputmode="decimal" value="'+v+'"><span class="u">'+a[2]+'</span><div class="tip" id="t'+i+'">'+a[6]+(a[5]!=null?' Допустимо: '+a[4]+'…'+a[5]+'.':'')+'</div></div>'}
+function fld(k,v,i){var a=F[k];if(mode=='lp'&&k=='D')a=[a[0],'дальность обнаружения',a[2],a[3],a[4],a[5],'Дальность обнаружения цели средствами берегового наблюдения. В формуле Lп = 2·(D + √(Rк² − (Rп − Rб)²)) D входит слагаемым: к каждому краю участка перехвата добавляется дальность обнаружения.'];return '<div class="f"><div class="n"><button type="button" class="q" data-t="'+i+'" aria-label="Пояснение: '+a[0]+'" aria-expanded="false" aria-controls="t'+i+'">?</button><label for="'+k+'"><b>'+a[0]+'</b> — '+a[1]+'</label></div><input id="'+k+'" aria-label="'+a[0]+' — '+a[1]+(a[2]!='—'?', '+a[2]:'')+'" type="number" step="any" inputmode="decimal" value="'+v+'"><span class="u">'+a[2]+'</span><div class="tip" id="t'+i+'">'+a[6]+(a[5]!=null?' Допустимо: '+a[4]+'…'+a[5]+'.':'')+'</div></div>'}
 function show(m){mode=m;var b=document.querySelectorAll('.node');for(var i=0;i<b.length;i++)b[i].className=b[i].className.replace(' on','')+(b[i].getAttribute('data-m')==m?' on':'');
 var h='<h2>'+T[m]+'</h2><div class="about">'+A[m]+'</div>',n=0;M[m].forEach(function(k){h+=fld(k,F[k][3],n++)});
-if(m=='nav'||m=='kurs'||m=='pd'){h+='<div class="f"><div class="n"><button class="q" data-t="'+n+'">?</button><span><b>Ф</b> — трактовка функции</span></div><select id="pdv" style="grid-column:span 2"><option value="1">Круговое рассеивание: 1−exp(−ρ²D²/E²)</option><option value="2">Круговое через σ: 1−exp(−D²/2σ²)</option><option value="3">Приведённая ф-ция Лапласа Φ̂(D/E)</option><option value="4">Нормальная ф-ция Лапласа 2Φ0(D/σ)</option></select><div class="tip" id="t'+n+'">На схеме: «вероятность попадания в круг радиусом D при срединном отклонении E» — этому соответствует круговое рассеивание (варианты 1 и 2 дают одинаковый результат). Варианты 3 и 4 — одномерная функция Лапласа (попадание в полосу ±D), если методичка понимает Ф так. При пустом σc варианты 3 и 4 совпадают тождественно: σ = E/0,6745 и ρ = 0,6745/√2 = 0,476936, поэтому erf(ρ·D/E) = erf(D/(σ√2)) (например, оба дают 0,6008). ρ = 0,476936.</div></div>';n++;
-h+='<div class="f"><div class="n"><button class="q" data-t="'+n+'">?</button><span><b>σc</b> — СКО (необязательно)</span></div><input id="sig" type="number" step="any" placeholder="E/0,6745"><span class="u">миль</span><div class="tip" id="t'+n+'">Среднее квадратическое отклонение. Если поле пустое, берётся σ = E/0,6745. Используется в вариантах 2 и 4.</div></div>';n++}
+if(m=='nav'||m=='kurs'||m=='pd'){h+='<div class="f"><div class="n"><button type="button" class="q" data-t="'+n+'" aria-label="Пояснение" aria-expanded="false" aria-controls="t'+n+'">?</button><label for="pdv"><b>Ф</b> — трактовка функции</label></div><select id="pdv" style="grid-column:span 2"><option value="1">Круговое рассеивание: 1−exp(−ρ²D²/E²)</option><option value="2">Круговое через σ: 1−exp(−D²/2σ²)</option><option value="3">Приведённая ф-ция Лапласа Φ̂(D/E)</option><option value="4">Нормальная ф-ция Лапласа 2Φ0(D/σ)</option></select><div class="tip" id="t'+n+'">На схеме: «вероятность попадания в круг радиусом D». Все варианты считаются от σc; где нужна E, она берётся как E = 0,6745·σc. Варианты 1 и 2 — круговое рассеивание (дают одинаковый результат), 3 и 4 — одномерная функция Лапласа (попадание в полосу ±D), тоже совпадают: erf(ρ·D/E) = erf(D/(σc√2)) (например, оба дают 0,6008). ρ = 0,476936.</div></div>';n++;
+h+='<div class="f"><div class="n"><button type="button" class="q" data-t="'+n+'" aria-label="Пояснение: E" aria-expanded="false" aria-controls="t'+n+'">?</button><label for="E"><b>E</b> — срединное отклонение (необязательно, вычисляется из σc)</label></div><input id="E" aria-label="E — срединное отклонение, необязательно, миль" type="number" step="any" inputmode="decimal" placeholder="0,6745·σc"><span class="u">миль</span><div class="tip" id="t'+n+'">Необязательное поле. Если пусто — E вычисляется как 0,6745·σc и показывается в расчёте. Если введено и не согласуется с σc, расчёт всё равно ведётся по σc (E пересчитывается). Одно E без σc не принимается — заполните СКО σc.</div></div>';n++}
 if(m=='blk'||m=='zak'||m=='nez'){var nm=m=='blk'?'lуч':'S',u=m=='blk'?'миль':'миль²',ex=m=='blk'?[20,15,10]:[300,250,200];
-h+='<div class="f" style="border:0"><div class="n"><button class="q" data-t="'+n+'">?</button><span><b>'+nm+' i</b> — слагаемые суммы, '+u+'</span></div><div class="tip" id="t'+n+'">'+(m=='blk'?'Длины участков рубежа, перекрываемых каждой единицей сил (до 10). Пустые поля не учитываются.':'Площади, обследованные каждой единицей сил (до 10). Пустые поля не учитываются.')+'</div></div><div class="sumt">';
-for(var i=0;i<10;i++)h+='<input class="sx" type="number" step="any" inputmode="decimal" placeholder="'+nm+(i+1)+'" value="'+(ex[i]!==undefined?ex[i]:'')+'">';h+='</div>'}
-h+='<div class="btns"><button id="bc">'+ic('calc')+'Рассчитать</button><button id="bk">'+ic('copy')+'Копировать отчёт</button><button id="bs">'+ic('save')+'Сохранить отчёт</button></div><div id="out"></div>';
+h+='<div class="f" style="border:0"><div class="n"><button type="button" class="q" data-t="'+n+'" aria-label="Пояснение" aria-expanded="false" aria-controls="t'+n+'">?</button><span><b>'+nm+' i</b> — слагаемые суммы, '+u+'</span></div><div class="tip" id="t'+n+'">'+(m=='blk'?'Длины участков рубежа, перекрываемых каждой единицей сил (до 10). Пустые поля не учитываются.':'Площади, обследованные каждой единицей сил (до 10). Пустые поля не учитываются.')+'</div></div><div class="sumt">';
+for(var i=0;i<10;i++)h+='<input class="sx" aria-label="'+nm+' '+(i+1)+', '+u+'" type="number" step="any" inputmode="decimal" placeholder="'+nm+(i+1)+'" value="'+(ex[i]!==undefined?ex[i]:'')+'">';h+='</div>'}
+h+='<div class="btns"><button id="bc">'+ic('calc')+'Рассчитать</button><button id="bk">'+ic('copy')+'Копировать отчёт</button><button id="bs">'+ic('save')+'Сохранить отчёт</button></div><div id="out" aria-live="polite"></div>';
 var c=$('calc');c.innerHTML=h;c.style.animation='none';c.offsetHeight;c.style.animation='';
 var e=c.querySelectorAll('input,select');for(i=0;i<e.length;i++){e[i].oninput=calc;e[i].onchange=calc}
-var q=c.querySelectorAll('.q');for(i=0;i<q.length;i++)q[i].onclick=function(){var t=$('t'+this.getAttribute('data-t'));t.className=t.className.indexOf('op')>-1?'tip':'tip op'};
+var q=c.querySelectorAll('.q');for(i=0;i<q.length;i++)q[i].onclick=function(){var t=$('t'+this.getAttribute('data-t'));var op=t.className.indexOf('op')<0;t.className=op?'tip op':'tip';this.setAttribute('aria-expanded',op?'true':'false')};
 $('bc').onclick=calc;$('bk').onclick=cp;$('bs').onclick=sv;calc()}
 function interp(p,m){var pc=Math.round(p*1000)/10,w=p<0.3?'низкая':p<0.6?'средняя':p<0.85?'высокая':'очень высокая',s=Math.round(p*10);
-var what={lp:'цель пройдёт через перекрытый участок рубежа',nav:'цель будет перехвачена',kurs:'цель будет перехвачена',pd:'цель окажется в круге радиусом D',blk:'цель будет обнаружена на рубеже дозора',zak:'цель будет обнаружена в районе',nez:'цель будет обнаружена в районе'}[m];
-return 'P = '+f(p)+' ('+pc+' %) — вероятность '+w+': при многократном повторении таких же условий '+what+' примерно в '+s+' случаях из 10.'}
-function calc(){var v={},er=[];M[mode].forEach(function(k){var e=$(k),a=F[k],x=parseFloat(e.value),bad=isNaN(x)||x<a[4]||(a[5]!=null&&x>a[5]);e.className=bad?'bad':'';if(bad)er.push(a[0]+': '+(a[4]>0&&a[4]<1e-6?'должно быть больше 0':'допустимо от '+a[4])+(a[5]!=null?' до '+a[5]:''));v[k]=x});
+var what={lp:'цель будет перехвачена',nav:'цель будет перехвачена',kurs:'цель будет перехвачена',pd:'цель окажется в круге радиусом D',blk:'цель будет обнаружена на рубеже дозора',zak:'цель будет обнаружена в районе',nez:'цель будет обнаружена в районе'}[m];
+return 'P = '+f(p)+' ('+f(pc)+' %) — вероятность '+w+': при многократном повторении таких же условий '+what+' примерно в '+s+' '+pl(s,'случае','случаях','случаях')+' из 10.'}
+function calc(){var v={},er=[];M[mode].forEach(function(k){var e=$(k),a=F[k],x=parseFloat(e.value),bad=isNaN(x)||x<a[4]||(a[5]!=null&&x>a[5]);e.className=bad?'bad':'';if(bad)er.push(e.value===''&&isNaN(x)?'Поле «'+a[0]+' — '+a[1]+'» не заполнено':a[0]+': '+(a[4]>0&&a[4]<1e-6?'должно быть больше 0':'допустимо от '+a[4])+(a[5]!=null?' до '+a[5]:''));v[k]=x});
 var sx=[],se=document.querySelectorAll('.sx');for(var i=0;i<se.length;i++){if(se[i].value==='')continue;var x=parseFloat(se[i].value);if(isNaN(x)||x<0){se[i].className='sx bad';er.push('Слагаемые суммы должны быть ≥ 0')}else{se[i].className='sx';sx.push(x)}}
-if($('sig')&&$('sig').value!==''&&!(+$('sig').value>0))er.push('σc должно быть больше 0');
-var o=$('out');if(er.length){o.innerHTML='<div class="err">'+er.join('<br>')+'</div>';rep='';return}
-function Pd(){var pv=+$('pdv').value,sg=$('sig').value,s=sg?+sg:v.E/0.6745,D=v.D,E=v.E,p,t;
+var Ei=$('E');if(Ei){var ev=Ei.value,ex=parseFloat(ev);Ei.className='';if(ev!==''&&!(ex>0)){Ei.className='bad';er.push('E: должно быть больше 0 (или оставьте пустым)')}if($('sig').value===''){for(var j=0;j<er.length;j++)if(er[j].indexOf('σc')>=0)er.splice(j--,1);er.unshift('Заполните СКО σc — поле обязательное'+(ev!==''?' (по одному E расчёт не выполняется)':''))}}
+var o=$('out');if(er.length){o.innerHTML='<div class="err" role="alert">'+er.join('<br>')+'</div>';rep='';return}
+function Pd(){var pv=+$('pdv').value,s=v.sig,D=v.D,E=0.6745*s,ev=$('E').value,ex=parseFloat(ev),p,t,h='E = 0,6745·σc = 0,6745·'+f(s)+' = '+mi(E);
+if(ev!==''&&Math.abs(ex-E)>Math.max(0.005*E,1e-9))w=(w?w+'\n':'')+'⚠ Примечание: введённое E = '+f(ex)+' не согласуется с σc (0,6745·σc = '+f(E)+'). Расчёт выполнен по σc, E пересчитано из σc.';
 if(pv==1){p=1-Math.exp(-(rho*rho*D*D/(E*E)));t='Pd = 1 − exp(−ρ²·D²/E²) = 1 − exp(−0,476936²·'+f(D)+'²/'+f(E)+'²)'}
-if(pv==2){p=1-Math.exp(-(D*D/(2*s*s)));t='Pd = 1 − exp(−D²/(2σ²)) = 1 − exp(−'+f(D)+'²/(2·'+f(s)+'²))'}
+if(pv==2){p=1-Math.exp(-(D*D/(2*s*s)));t='Pd = 1 − exp(−D²/(2σc²)) = 1 − exp(−'+f(D)+'²/(2·'+f(s)+'²))'}
 if(pv==3){p=erf(rho*D/E);t='Pd = Φ̂(D/E) = erf(ρ·D/E) = erf(0,476936·'+f(D)+'/'+f(E)+')'}
-if(pv==4){p=erf(D/(s*Math.SQRT2));t='Pd = 2Φ0(D/σ) = erf(D/(σ√2)) = erf('+f(D)+'/('+f(s)+'·√2))'}
-return[p,t+' = '+f(p)]}
-var r='',P=0,d,s=sx.reduce(function(a,b){return a+b},0),ss=sx.map(f).join(' + ')||'0',w='';
-if(mode=='lp'){P=Math.min(1,v.Lp/v.L);r='Pпер = Lп/L = '+f(v.Lp)+'/'+f(v.L)+' = '+f(P)}
+if(pv==4){p=erf(D/(s*Math.SQRT2));t='Pd = 2Φ0(D/σc) = erf(D/(σc√2)) = erf('+f(D)+'/('+f(s)+'·√2))'}
+t=h+'\n'+t;return[p,t+' = '+f(p)]}
+var r='',P=0,P0=0,d,s=sx.reduce(function(a,b){return a+b},0),ss=sx.map(f).join(' + ')||'0',w='';
+if(mode=='lp'){var dr=v.Rp-v.Rb,q2=v.Rk*v.Rk-dr*dr;if(!(q2>=0)){o.innerHTML='<div class="err" role="alert">Ошибка: Rк² должно быть ≥ (Rп − Rб)². Проверьте радиус предельной окружности встреч и удаления рубежа/позиции от берега.</div>';rep='';return}
+var Lp=2*(v.D+Math.sqrt(q2)),P0=Lp*v.Pk/v.L;P=Math.min(1,P0);r='Lп = 2·(D + √(Rк² − (Rп − Rб)²)) = 2·('+f(v.D)+' + √('+f(v.Rk)+'² − ('+f(v.Rp)+' − '+f(v.Rb)+')²)) = '+mi(Lp)+'\nPпер = Lп·Pк/L = '+f(Lp)+'·'+f(v.Pk)+'/'+f(v.L)+' = '+f(P0)+(P0>1?' → ограничено 1':'')}
 if(mode=='nav'){var p=1-Math.exp(-(v.Psv*v.Rc/(v.Tp*v.Vr)));d=Pd();P=p*d[0];r='Pрб = 1 − exp(−Pсв·Rц/(Tп·Vр)) = 1 − exp(−'+f(v.Psv)+'·'+f(v.Rc)+'/('+f(v.Tp)+'·'+f(v.Vr)+')) = '+f(p)+'\n'+d[1]+'\nPпер = Pрб·Pd = '+f(p)+'·'+f(d[0])+' = '+f(P)}
-if(mode=='kurs'){var tr=Math.sqrt(v.Rc*v.Rc+v.Vc*v.Vc*v.tz*v.tz-2*v.Rc*v.Vc*v.tz*Math.cos(v.Gc*Math.PI/180))/v.Vr;if(!(tr>0)){o.innerHTML='<div class="err">tр = 0: проверьте исходные данные</div>';rep='';return}
+if(mode=='kurs'){var tr=Math.sqrt(v.Rc*v.Rc+v.Vc*v.Vc*v.tz*v.tz-2*v.Rc*v.Vc*v.tz*Math.cos(v.Gc*Math.PI/180))/v.Vr;if(!(tr>0)){o.innerHTML='<div class="err" role="alert">tр = 0: проверьте исходные данные</div>';rep='';return}
 p=1-Math.exp(-v.tdop/tr);d=Pd();P=p*d[0];r='tр = √(Rц² + Vц²·tз² − 2·Rц·Vц·tз·cosGц)/Vр = √('+f(v.Rc)+'² + '+f(v.Vc)+'²·'+f(v.tz)+'² − 2·'+f(v.Rc)+'·'+f(v.Vc)+'·'+f(v.tz)+'·cos'+f(v.Gc)+'°)/'+f(v.Vr)+' = '+f(tr)+' ч\nPрб = 1 − exp(−tдоп/tр) = 1 − exp(−'+f(v.tdop)+'/'+f(tr)+') = '+f(p)+'\n'+d[1]+'\nPпер = Pрб·Pd = '+f(p)+'·'+f(d[0])+' = '+f(P)}
 if(mode=='pd'){d=Pd();P=d[0];r=d[1]}
-if(mode=='blk'){P=s*v.Pk/v.L;r='Σlучi = '+ss+' = '+f(s)+' миль\nPoi = Σlучi·Pk/L = '+f(s)+'·'+f(v.Pk)+'/'+f(v.L)+' = '+f(P)}
-if(mode=='zak'){P=s*v.Pk/v.S;r='ΣSi = '+ss+' = '+f(s)+' миль²\nPoi = ΣSi·Pk/S = '+f(s)+'·'+f(v.Pk)+'/'+f(v.S)+' = '+f(P)}
-if(mode=='nez'){P=(1-Math.exp(-s/v.S))*v.Pk;r='ΣSi = '+ss+' = '+f(s)+' миль²\nPoi = (1 − exp(−ΣSi/S))·Pk = (1 − exp(−'+f(s)+'/'+f(v.S)+'))·'+f(v.Pk)+' = '+f(P)}
-if(P>1)w='⚠ Результат больше 1: исходные данные противоречат условиям формулы (сумма участков/площадей больше L или S).';
-var it=P<=1?interp(P,mode):w;rep=T[mode]+'\n'+r+'\n'+it;
-o.innerHTML='<div class="big"><b>'+f(P)+'</b><div class="bar"><i style="width:'+Math.min(100,P*100)+'%"></i></div></div><div class="interp">'+it+'</div><div class="res">'+r+'</div>'}
+if(mode=='blk'){P0=s*v.Pk/v.L;P=Math.min(1,P0);r='Σlучi = '+ss+' = '+mi(s)+'\nPoi = Σlучi·Pк/L = '+f(s)+'·'+f(v.Pk)+'/'+f(v.L)+' = '+f(P0)+(P0>1?' → ограничено 1':'')}
+if(mode=='zak'){P0=s*v.Pk/v.S;P=Math.min(1,P0);r='ΣSi = '+ss+' = '+f(s)+' миль²\nPoi = ΣSi·Pк/S = '+f(s)+'·'+f(v.Pk)+'/'+f(v.S)+' = '+f(P0)+(P0>1?' → ограничено 1':'')}
+if(mode=='nez'){P=(1-Math.exp(-s/v.S))*v.Pk;r='ΣSi = '+ss+' = '+f(s)+' миль²\nPoi = (1 − exp(−ΣSi/S))·Pк = (1 − exp(−'+f(s)+'/'+f(v.S)+'))·'+f(v.Pk)+' = '+f(P)}
+if(P0>1)w=mode=='lp'?'⚠ Расчётное значение '+f(P0)+' больше 1 — вероятность ограничена 1 (Lп больше L).':'⚠ Расчётное значение '+f(P0)+' больше 1 — вероятность ограничена 1: исходные данные противоречат условиям формулы (сумма участков/площадей больше L или S).';
+if(mode=='lp'&&v.Rb>v.Rp)w=(w?w+'\n':'')+'⚠ Примечание: минимальное удаление позиции корабля от берега (Rб) больше удаления рубежа перехвата (Rп) — проверьте значения. Расчёт выполнен.';
+var it=interp(P,mode)+(w?'\n'+w:'');rep=T[mode]+'\n'+r+'\n'+it;
+o.innerHTML='<div class="big"><b>'+f(P)+'</b><div class="bar"><i style="width:'+Math.min(100,P*100)+'%"></i></div></div><div class="interp">'+interp(P,mode)+'</div>'+(w?'<div class="warn">'+w.replace(/\n/g,'<br>')+'</div>':'')+'<div class="res">'+r+'</div>'}
 function cp(){if(!rep)return;function fb(){var t=document.createElement('textarea');t.value=rep;document.body.appendChild(t);t.select();try{document.execCommand('copy');alert('Отчёт скопирован')}catch(e){prompt('Скопируйте:',rep)}document.body.removeChild(t)}
 if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(rep).then(function(){alert('Отчёт скопирован')},fb);else fb()}
-function sv(){if(!rep)return;var bl=new Blob(['\ufeff'+rep],{type:'text/plain;charset=utf-8'});if(window.navigator.msSaveBlob){window.navigator.msSaveBlob(bl,'otchet_poisk.txt');return}var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rep],{type:'text/plain;charset=utf-8'}));a.download='otchet_poisk.txt';document.body.appendChild(a);a.click();document.body.removeChild(a)}
+function sv(){if(!rep)return;var bl=new Blob(['\ufeff'+rep],{type:'text/plain;charset=utf-8'});if(window.navigator.msSaveBlob){window.navigator.msSaveBlob(bl,'otchet_poisk.txt');return}var url=URL.createObjectURL(bl),a=document.createElement('a');a.href=url;a.download='otchet_poisk.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(url)},1000)}
 function theme(t){document.documentElement.setAttribute('data-theme',t);$('tg').getElementsByTagName('span')[0].textContent=t=='dark'?'Светлая':'Тёмная';try{localStorage.setItem('th',t)}catch(e){}}
 $('tg').onclick=function(){theme(document.documentElement.getAttribute('data-theme')=='dark'?'light':'dark')};
 try{theme(localStorage.getItem('th')||'light')}catch(e){theme('light')}
